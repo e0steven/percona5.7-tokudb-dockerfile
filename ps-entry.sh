@@ -56,12 +56,10 @@ fi
     fi
 
     echo "lets go..."
-
+    service mysql restart
     touch $DATADIR/init.ok
     chown -R mysql:mysql "$DATADIR"
 
 echo "ensure tokudb..."
 ps_tokudb_admin --enable -u root -p$MYSQL_ROOT_PASSWORD
-echo "starting mysql... "
-killall -q -9 mysqld mysqld_safe
-mysqld --user=mysql $CMDARG
+tail -f /var/log/mysqld.log
