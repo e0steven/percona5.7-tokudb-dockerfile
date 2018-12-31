@@ -42,11 +42,6 @@ fi
             mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;"
         fi
 
-	if [ -z "$MYSQL_INITDB_SKIP_TZINFO" ]; then
-			# sed is for https://bugs.mysql.com/bug.php?id=20545
-			mysql_tzinfo_to_sql /usr/share/zoneinfo | sed 's/Local time zone must be set--see zic manual page/FCTY/' | "${mysql[@]}" mysql
-	fi
-
         if [ "$MYSQL_USER" -a "$MYSQL_PASSWORD" ]; then
 
             mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' ;"
@@ -64,6 +59,10 @@ fi
     service mysql restart
     touch $DATADIR/init.ok
     chown -R mysql:mysql "$DATADIR"
+    
+    if [ -z "$MYSQL_INITDB_SKIP_TZINFO" ]; then
+       mysql_tzinfo_to_sql /usr/share/zoneinfo | sed 's/Local time zone must be set--see zic manual page/FCTY/' | "${mysql[@]}" mysql
+    fi
 
 echo "ensure tokudb..."
 ps_tokudb_admin --enable -u root -p$MYSQL_ROOT_PASSWORD
