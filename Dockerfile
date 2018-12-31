@@ -1,5 +1,5 @@
 FROM centos:6.8
-MAINTAINER Tobias Herrmann Hinz <tobias.hinz@gmail.com>
+MAINTAINER Eric Stevens <e0steven@gmail.com>
 
 RUN groupadd -r mysql && useradd -r -g mysql mysql
 RUN yum -y install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
