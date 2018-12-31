@@ -61,7 +61,7 @@ fi
     chown -R mysql:mysql "$DATADIR"
     
     if [ -z "$MYSQL_INITDB_SKIP_TZINFO" ]; then
-       mysql_tzinfo_to_sql /usr/share/zoneinfo | sed 's/Local time zone must be set--see zic manual page/FCTY/' | "${mysql[@]}" mysql
+       mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p$MYSQL_ROOT_PASSWORD
     fi
 
 echo "ensure tokudb..."
