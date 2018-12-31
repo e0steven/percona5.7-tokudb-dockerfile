@@ -21,11 +21,6 @@ fi
         mysqld --initialize-insecure --datadir="$DATADIR"
         chown -R mysql:mysql "$DATADIR"
         echo 'Finished mysql initialize'
-	
-	if [ -z "$MYSQL_INITDB_SKIP_TZINFO" ]; then
-			# sed is for https://bugs.mysql.com/bug.php?id=20545
-			mysql_tzinfo_to_sql /usr/share/zoneinfo | sed 's/Local time zone must be set--see zic manual page/FCTY/' | "${mysql[@]}" mysql
-	fi
 
     	service mysql restart
 
@@ -46,6 +41,11 @@ fi
             echo "adding database..."
             mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;"
         fi
+
+	if [ -z "$MYSQL_INITDB_SKIP_TZINFO" ]; then
+			# sed is for https://bugs.mysql.com/bug.php?id=20545
+			mysql_tzinfo_to_sql /usr/share/zoneinfo | sed 's/Local time zone must be set--see zic manual page/FCTY/' | "${mysql[@]}" mysql
+	fi
 
         if [ "$MYSQL_USER" -a "$MYSQL_PASSWORD" ]; then
 
