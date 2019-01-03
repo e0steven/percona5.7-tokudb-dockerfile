@@ -18,7 +18,6 @@ fi
 
         mkdir -p "$DATADIR"
         echo 'Running mysql initialize'
-	rm -rf "$DATADIR"
         mysqld --initialize-insecure --datadir="$DATADIR"
         chown -R mysql:mysql "$DATADIR"
         echo 'Finished mysql initialize'
