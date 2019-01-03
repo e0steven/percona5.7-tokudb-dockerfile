@@ -65,5 +65,5 @@ fi
     fi
 
 echo "ensure tokudb..."
-ps_tokudb_admin --enable -u root -p$MYSQL_ROOT_PASSWORD
+ps-admin --docker --enable-tokudb -u root -p $MYSQL_ROOT_PASSWORD
 tail -f /var/log/mysqld.log
