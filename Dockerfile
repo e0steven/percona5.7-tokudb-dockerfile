@@ -9,7 +9,9 @@ RUN yum clean all
 RUN rm -rf /var/cache/yum /var/lib/mysql
 
 RUN printf '[mysqld]\nskip-host-cache\nskip-name-resolve\n' > /etc/my.cnf.d/docker.cnf
-RUN echo "THP_SETTING=never" >> /etc/my.cnf.d/docker.cnf
+RUN /usr/bin/install -m 0664 -o mysql -g root /dev/null /etc/sysconfig/mysql \
+	&& echo "LD_PRELOAD=/usr/lib64/libjemalloc.so.1" >> /etc/sysconfig/mysql \
+	&& echo "THP_SETTING=never" >> /etc/sysconfig/mysql 
 
 VOLUME ["/var/lib/mysql", "/var/log/mysql"]
 
