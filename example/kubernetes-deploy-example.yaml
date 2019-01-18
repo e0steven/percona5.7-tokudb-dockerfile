@@ -1,0 +1,135 @@
+## This is the system to tag our nodes with THP disabled for TokuDB and other services that require it (like Redis)
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: kube-system
+  name: sysctl
+spec:
+  selector:
+    matchLabels:
+      app: sysctl
+  template:
+    metadata:
+      labels:
+        app: sysctl
+    spec:
+      volumes:
+      - name: sys
+        hostPath:
+          path: /sys
+      initContainers:
+      - name: disable-thp
+        image: busybox
+        command: ["sh", "-c"]
+        args:
+        - |-
+          set -e
+          set -o pipefail
+          echo never > /rootfs/sys/kernel/mm/transparent_hugepage/enabled
+          echo never > /rootfs/sys/kernel/mm/transparent_hugepage/defrag
+          grep -q -F [never] /sys/kernel/mm/transparent_hugepage/enabled
+          grep -q -F [never] /sys/kernel/mm/transparent_hugepage/defrag
+        volumeMounts:
+        - name: sys
+          mountPath: /rootfs/sys
+      - name: label-node
+        image: wardsco/kubectl:1.11
+        command: ["kubectl"]
+        args: ["label", "node", "--overwrite", "$(NODE_NAME)", "sysctl/mm.transparent_hugepage.enabled=never", "sysctl/mm.transparent_hugepage.defrag=never"]
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      containers:
+      - name: sleep
+        image: wardsco/sleep
+---
+## Binding and permissions for the node-labeler to function and get nodes
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: node-labeler
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["list", "update", "get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: node-labeler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: node-labeler
+subjects:
+- namespace: kube-system
+  kind: ServiceAccount
+  name: default
+---
+## This is the deployment for mysql, it relies on a config for it's transparent huge pages (THP) disable
+## It will first only launch on nodes that have TPH turned off using the nodeAffinity check, second it will load busybox and remove the lost+found folder if found
+## Lastly it will fire up the 'custom' image posted here: 
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: mysql
+  name: mysql
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mysql
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: sysctl/mm.transparent_hugepage.enabled
+                operator: In
+                values:
+                - "never"
+              - key: sysctl/mm.transparent_hugepage.defrag
+                operator: In
+                values:
+                - "never"
+      initContainers:
+      - name: "remove-lost-found"
+        image: "busybox:1.25.0"
+        command:
+          - "rm"
+          - "-fr"
+          - "/var/lib/mysql/lost+found"
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysqldata
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          value: <insert_value_here>
+        - name: MYSQL_ROOT_PASSWORD
+          value: <insert_value_or_secret>
+        - name: MYSQL_USER
+          value: <insert_value>
+        image: e0steven/percona5.7-tokudb-centos68
+        imagePullPolicy: Always
+        name: mysql-db
+        ports:
+        - containerPort: 3306
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysqldata
+      restartPolicy: Always
+      volumes:
+      - name: mysqldata
+        persistentVolumeClaim:
+          claimName: mysqldata
+status: {}
