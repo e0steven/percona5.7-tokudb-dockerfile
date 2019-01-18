@@ -1,12 +1,16 @@
 # percona5.7-tokudb-dockerfile
 
-percona 5.7 with tokudb on centos 6.8
+Percona 5.7 with TokuDB on Centos 6.8
 
-see Dockerfile and ps-entry.sh 
+See Dockerfile, ps-entry.sh, and example folder
 
-## ACHTUNG:  this is more or less a fork of: https://github.com/percona/percona-docker/tree/master/percona-server.56
+The ps-entry has been customized to check for mysql data (instead of a flag file) for init, adding in timezone data, and enabling the TokuDB engine. 
 
-just keep reading, stuff below is taken from the original repo.
+## Warning:  This is more or less a fork of: https://github.com/percona/percona-docker/tree/master/percona-server.56 However the official repos did NOT load TokuDB successfully or had other issues
+
+Check the example folder for an example of a Kubernetes (GKE) YAML that works.
+
+The data below is from the original Repo.
 
 # How to Use the Images
 
@@ -14,7 +18,7 @@ just keep reading, stuff below is taken from the original repo.
 
 Start a Percona Server container as follows:
 
-    docker run --name container-name -e MYSQL_ROOT_PASSWORD=secret -d herrmannhinz/percona5.7-tokudb-dockerfile:tag
+    docker run --name container-name -e MYSQL_ROOT_PASSWORD=secret -d e0steven/percona5.7-tokudb-centos68
 
 Where `container-name` is the name you want to assign to your container, `secret` is the password to be set for the root user and `tag` is the tag specifying the version you want. See the list above for relevant tags, or look at the [full list of tags](https://registry.hub.docker.com/u/percona/percona-server/tags/manage/).
 
@@ -28,7 +32,7 @@ This image exposes the standard MySQL port (3306), so container linking makes th
 
 The following command starts another container instance and runs the `mysql` command line client against your original container, allowing you to execute SQL statements against your database:
 
-    docker run -it --link container-name --rm herrmannhinz/percona5.7-tokudb-dockerfile:tag mysql -h container-name -P 3306 -uroot -psecret'
+    docker run -it --link container-name --rm e0steven/percona5.7-tokudb-centos68 mysql -h container-name -P 3306 -uroot -psecret'
 
 where `container-name` is the name of your database container.
 
@@ -83,7 +87,7 @@ The Docker documentation is a good starting point for understanding the differen
 2. Start your container like this:
 
 ```
-    docker run --name container-name -v /local/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -d herrmannhinz/percona5.7-tokudb-dockerfile:tag
+    docker run --name container-name -v /local/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -d e0steven/percona5.7-tokudb-centos68
 ```
 
 The `-v /local/datadir:/var/lib/mysql` part of the command mounts the `/local/datadir` directory from the underlying host system as `/var/lib/mysql` inside the container, where MySQL by default will write its data files.
@@ -100,18 +104,18 @@ If you start your MySQL container instance with a data directory that already co
 
 Docker allows mapping of ports on the container to ports on the host system by using the -p option. If you start the container as follows, you can connect to the database by connecting your client to a port on the host machine. This can greatly simplfy consolidating many instances to a single host. In this example port 6603, the we use the address of the Docker host to connect to the TCP port the Docker deamon is forwarding from:
 
-    docker run --name container-name `-p 6603:3306` -d herrmannhinz/percona5.7-tokudb-dockerfiler
+    docker run --name container-name `-p 6603:3306` -d e0steven/percona5.7-tokudb-centos68
     mysql -h docker_host_ip -P 6603
 
 ## Passing options to the server
 
 You can pass arbitrary command line options to the MySQL server by appending them to the `run command`:
 
-    docker run --name my-container-name -d herrmannhinz/percona5.7-tokudb-dockerfile --option1=value --option2=value
+    docker run --name my-container-name -d e0steven/percona5.7-tokudb-centos68 --option1=value --option2=value
 
 In this case, the values of option1 and option2 will be passed directly to the server when it is started. The following command will for instance start your container with UTF-8 as the default setting for character set and collation for all databases in MySQL:
 
-    docker run --name container-name -d  herrmannhinz/percona5.7-tokudb-dockerfile --character-set-server=utf8 --collation-server=utf8_general_ci
+    docker run --name container-name -d  e0steven/percona5.7-tokudb-centos68 --character-set-server=utf8 --collation-server=utf8_general_ci
 
 ## Using a Custom Percona Server Config File
 
@@ -123,15 +127,9 @@ If you want to base your changes on the standard configuration file, start your 
 
 ... where `/my/custom/config-file` is the path and name of the new configuration file. Then start a new Percona Server container like this:
 
-    docker run --name my-new-container-name -v /my/custom/config-file:/etc/my.cnf -e MYSQL_ROOT_PASSWORD=my-secret-pw -d herrmannhinz/percona5.7-tokudb-dockerfile:tag
-
+    docker run --name my-new-container-name -v /my/custom/config-file:/etc/my.cnf -e MYSQL_ROOT_PASSWORD=my-secret-pw -d e0steven/percona5.7-tokudb-centos68
+    
 This will start a new Percona Server container `my-new-container-name` where the Percona Server instance uses the startup options specified in `/my/custom/config-file`.
 
-# Supported Docker Versions
 
-These images are officially supported by the MySQL team on Docker version 1.9. Support for older versions (down to 1.0) is provided on a best-effort basis, but we strongly recommend running on the most recent version, since that is assumed for parts of the documentation above.
-
-# User Feedback
-
-We welcome your feedback!
 
