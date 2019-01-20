@@ -1,6 +1,6 @@
 # percona5.7-tokudb-dockerfile
 
-Percona 5.7 with TokuDB on Centos 6.8
+Percona 5.7 with TokuDB on Centos 6.8 Ready for Kubernetes Deploy
 
 See Dockerfile, ps-entry.sh, and example folder
 
