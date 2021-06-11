@@ -1,4 +1,4 @@
-FROM centos:6.8
+FROM centos:8
 MAINTAINER Eric Stevens <e0steven@gmail.com>
 
 RUN groupadd -r mysql && useradd -r -g mysql mysql
