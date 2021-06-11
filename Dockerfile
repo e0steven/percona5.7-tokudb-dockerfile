@@ -58,6 +58,7 @@ RUN /usr/bin/install -m 0775 -o mysql -g root -d /etc/my.cnf.d /var/lib/mysql /v
 # allow to change config files
 	&& chown -R mysql:root /etc/my.cnf /etc/my.cnf.d \
 	&& chmod -R ug+rwX /etc/my.cnf /etc/my.cnf.d
+	&& chown -R mysql:mysql /var/lib/mysql
 
 VOLUME ["/var/lib/mysql", "/var/log/mysql"]
 
