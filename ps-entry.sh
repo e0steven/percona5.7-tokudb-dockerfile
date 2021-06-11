@@ -8,6 +8,8 @@ if [ "${1:0:1}" = '-' ]; then
 fi
 
     # Get config
+    echo 'Engines starting'
+    echo $DATADIR
     DATADIR="$("mysqld" --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
     if [ ! -d "$DATADIR/mysql" ]; then
         if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
