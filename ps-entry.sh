@@ -55,7 +55,10 @@ fi
 
     fi
 
-    echo "lets go..."
+    echo "lets go...linking logs"
+    ln -sf /dev/stderr /var/log/mysqld.log
+    chown mysql:mysql /var/log/mysqld.log
+    echo "linked"
     service mysql restart
     touch $DATADIR/init.ok
     chown -R mysql:mysql "$DATADIR"
