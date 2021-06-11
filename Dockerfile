@@ -64,6 +64,6 @@ VOLUME ["/var/lib/mysql", "/var/log/mysql"]
 
 COPY ps-entry.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
-
+USER mysql
 EXPOSE 3306
 CMD ["mysqld"]
