@@ -15,9 +15,7 @@ fi
     ln -sf /dev/stderr /var/log/mysqld.log
     chown mysql:mysql /var/log/mysqld.log
     echo "linked"
-    systemctl restart mysqld
-    touch $DATADIR/init.ok
-    chown -R mysql:mysql "$DATADIR"
+
     
     if [ -z "$MYSQL_INITDB_SKIP_TZINFO" ]; then
        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p$MYSQL_ROOT_PASSWORD
