@@ -2,7 +2,7 @@ FROM centos:6.8
 MAINTAINER Eric Stevens <e0steven@gmail.com>
 
 RUN groupadd -r mysql && useradd -r -g mysql mysql
-RUN yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+RUN yum -y install http://repo.percona.com/yum/percona-release-latest.noarch.rpm
 RUN yum -y install Percona-Server-server-57 Percona-Server-tokudb-57
 
 RUN yum clean all
