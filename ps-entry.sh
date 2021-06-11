@@ -12,7 +12,7 @@ fi
     DATADIR="$("mysqld" --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
     echo $DATADIR
     echo "lets go...linking logs"
-    ln -sf /dev/stderr /var/log/mysqld.log
+    sudo ln -sf /dev/stderr /var/log/mysqld.log
     chown mysql:mysql /var/log/mysqld.log
     echo "linked"
 
