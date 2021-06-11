@@ -15,7 +15,7 @@ fi
     ln -sf /dev/stderr /var/log/mysqld.log
     chown mysql:mysql /var/log/mysqld.log
     echo "linked"
-    systemctl mysql restart
+    systemctl restart mysqld
     touch $DATADIR/init.ok
     chown -R mysql:mysql "$DATADIR"
     
