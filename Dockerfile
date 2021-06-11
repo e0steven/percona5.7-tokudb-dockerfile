@@ -57,14 +57,13 @@ RUN /usr/bin/install -m 0775 -o mysql -g root -d /etc/my.cnf.d /var/lib/mysql /v
 	&& ln -s /etc/my.cnf.d /etc/mysql \
 # allow to change config files
 	&& chown -R mysql:root /etc/my.cnf /etc/my.cnf.d \
+	&& chown -R mysql:mysql /var/lib/mysql \
 	&& chmod -R ug+rwX /etc/my.cnf /etc/my.cnf.d
-	&& chown -R mysql:mysql /var/lib/mysql
 
 VOLUME ["/var/lib/mysql", "/var/log/mysql"]
 
 COPY ps-entry.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-USER mysql
 EXPOSE 3306
 CMD ["mysqld"]
