@@ -16,4 +16,4 @@ fi
 
 echo "ensure tokudb..."
 
-tail -f /var/log/mysqld.log
+mysqld
